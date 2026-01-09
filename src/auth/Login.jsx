@@ -69,7 +69,7 @@ export default function Login() {
           <h1 className="text-3xl font-bold text-gray-900">
             Welcome to <span className="text-orange-600">CookBook</span>
           </h1>
-          <p className="text-gray-600 mt-2">Sign in to access your recipes</p>
+          <p className="text-gray-600 mt-2">Log in to access your recipes</p>
         </div>
 
         {/* Login Form */}
@@ -78,7 +78,7 @@ export default function Login() {
             <div className="p-2 bg-orange-100 rounded-lg">
               <LogIn className="h-5 w-5 text-orange-600" />
             </div>
-            <h2 className="text-xl font-bold text-gray-900">Sign In</h2>
+            <h2 className="text-xl font-bold text-gray-900">Log In</h2>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -150,7 +150,7 @@ export default function Login() {
                 </>
               ) : (
                 <>
-                  Sign In
+                  Log In
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}

@@ -8,12 +8,14 @@ import {
   Grid3x3, 
   List, 
   ChefHat,
-  Calendar,
   Clock,
-  TrendingUp,
   RefreshCw,
   BookmarkCheck,
-  BookOpen
+  BookOpen,
+  Salad,
+  Drumstick,
+  Cake,
+  X
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -22,16 +24,82 @@ export default function SavedRecipes() {
   const [filteredRecipes, setFilteredRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [viewMode, setViewMode] = useState("grid"); // "grid" or "list"
+  const [viewMode, setViewMode] = useState("grid");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [timeFilter, setTimeFilter] = useState("all");
+  const [categories, setCategories] = useState([
+    { id: "all", name: "All Recipes", icon: <BookmarkCheck className="h-4 w-4" />, count: 0 },
+    { id: "veg", name: "Vegetarian", icon: <Salad className="h-4 w-4" />, count: 0 },
+    { id: "nonveg", name: "Non-Veg", icon: <Drumstick className="h-4 w-4" />, count: 0 },
+    { id: "dessert", name: "Desserts", icon: <Cake className="h-4 w-4" />, count: 0 },
+  ]);
+
+  // Function to get recipe category (same as AllRecipes)
+  const getRecipeCategory = (recipe) => {
+    const title = recipe.title?.toLowerCase() || '';
+    const desc = recipe.description?.toLowerCase() || '';
+    
+    // Non-veg keywords
+    const nonVegKeywords = ['chicken', 'fish', 'meat', 'egg', 'biryani', 'mutton', 
+                           'shawarma', 'korma', 'nihaari', 'nihari', 'handi', 'momos'];
+    
+    // Dessert keywords  
+    const dessertKeywords = ['gulab', 'kheer', 'ice cream', 'brownie', 'dessert', 
+                            'cake', 'sweet', 'jamun', 'rasmalai', 'baklava', 
+                            'croissant', 'lava', 'vanilla', 'choco'];
+    
+    // Check for non-veg
+    const hasNonVeg = nonVegKeywords.some(keyword => 
+      title.includes(keyword) || desc.includes(keyword)
+    );
+    
+    if (hasNonVeg) return "nonveg";
+    
+    // Check for dessert
+    const hasDessert = dessertKeywords.some(keyword => 
+      title.includes(keyword) || desc.includes(keyword)
+    );
+    
+    if (hasDessert) return "dessert";
+    
+    return "veg"; // Default to vegetarian
+  };
+
+  const calculateCategoryCounts = (recipeList) => {
+    const counts = {
+      all: recipeList.length,
+      veg: 0,
+      nonveg: 0,
+      dessert: 0
+    };
+
+    recipeList.forEach(recipe => {
+      const category = getRecipeCategory(recipe);
+      counts[category]++;
+    });
+
+    return counts;
+  };
 
   const fetchSaved = async () => {
     setLoading(true);
     try {
       const res = await getSavedRecipes();
-      setRecipes(res.data);
-      setFilteredRecipes(res.data);
+      const recipesData = res.data;
+      setRecipes(recipesData);
+      setFilteredRecipes(recipesData);
+      
+      // Calculate category counts
+      const categoryCounts = calculateCategoryCounts(recipesData);
+      
+      // Update categories with counts
+      setCategories(prevCategories => 
+        prevCategories.map(cat => ({
+          ...cat,
+          count: categoryCounts[cat.id] || 0
+        }))
+      );
+      
     } catch (error) {
       console.error("Error fetching saved recipes:", error);
       toast.error("Failed to load saved recipes");
@@ -56,15 +124,11 @@ export default function SavedRecipes() {
       );
     }
 
-    // Category filter
+    // Category filter - USING THE SAME FUNCTION
     if (categoryFilter !== "all") {
-      results = results.filter(recipe => {
-        const title = recipe.title.toLowerCase();
-        if (categoryFilter === "veg") return !title.includes("chicken") && !title.includes("fish") && !title.includes("meat");
-        if (categoryFilter === "nonveg") return title.includes("chicken") || title.includes("fish") || title.includes("meat");
-        if (categoryFilter === "dessert") return title.includes("dessert") || title.includes("sweet") || title.includes("ice cream");
-        return true;
-      });
+      results = results.filter(recipe => 
+        getRecipeCategory(recipe) === categoryFilter
+      );
     }
 
     // Time filter
@@ -88,22 +152,27 @@ export default function SavedRecipes() {
   };
 
   const getStats = () => {
+    const vegCount = recipes.filter(r => getRecipeCategory(r) === "veg").length;
+    const nonvegCount = recipes.filter(r => getRecipeCategory(r) === "nonveg").length;
+    const dessertCount = recipes.filter(r => getRecipeCategory(r) === "dessert").length;
+    
     return {
       total: recipes.length,
-      veg: recipes.filter(r => !r.title.toLowerCase().includes("chicken") && 
-                              !r.title.toLowerCase().includes("fish") && 
-                              !r.title.toLowerCase().includes("meat")).length,
-      nonveg: recipes.filter(r => r.title.toLowerCase().includes("chicken") || 
-                                 r.title.toLowerCase().includes("fish") || 
-                                 r.title.toLowerCase().includes("meat")).length,
-      dessert: recipes.filter(r => r.title.toLowerCase().includes("dessert") || 
-                                  r.title.toLowerCase().includes("sweet") || 
-                                  r.title.toLowerCase().includes("ice cream")).length,
+      veg: vegCount,
+      nonveg: nonvegCount,
+      dessert: dessertCount,
       totalTime: recipes.reduce((sum, r) => sum + (r.cookingTime || 0), 0)
     };
   };
 
   const stats = getStats();
+
+  const timeFilters = [
+    { id: "all", name: "Any Time" },
+    { id: "quick", name: "Quick (≤30 min)" },
+    { id: "medium", name: "Medium (30-60 min)" },
+    { id: "slow", name: "Slow (60+ min)" },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -174,12 +243,12 @@ export default function SavedRecipes() {
             <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Time</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {Math.floor(stats.totalTime / 60)}h {stats.totalTime % 60}m
-                  </p>
+                  <p className="text-sm text-gray-500">Desserts</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.dessert}</p>
                 </div>
-                <Clock className="h-8 w-8 text-blue-500" />
+                <div className="h-8 w-8 bg-pink-100 rounded-lg flex items-center justify-center">
+                  <span className="text-pink-600 font-bold">🍰</span>
+                </div>
               </div>
             </div>
           </div>
@@ -202,23 +271,42 @@ export default function SavedRecipes() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                  >
+                    <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Filter Controls */}
             <div className="flex flex-wrap gap-3">
-              <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-3 py-2">
-                <Filter className="h-4 w-4 text-gray-500" />
-                <select
-                  value={categoryFilter}
-                  onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="bg-transparent focus:outline-none"
-                >
-                  <option value="all">All Categories</option>
-                  <option value="veg">Vegetarian</option>
-                  <option value="nonveg">Non-Veg</option>
-                  <option value="dessert">Desserts</option>
-                </select>
+              {/* Category Filter with Buttons */}
+              <div className="flex flex-wrap gap-2">
+                {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => setCategoryFilter(category.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                      categoryFilter === category.id
+                        ? "bg-orange-500 text-white"
+                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    {category.icon}
+                    {category.name}
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      categoryFilter === category.id
+                        ? "bg-white/20"
+                        : "bg-gray-100"
+                    }`}>
+                      {category.count}
+                    </span>
+                  </button>
+                ))}
               </div>
 
               <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-3 py-2">
@@ -228,10 +316,11 @@ export default function SavedRecipes() {
                   onChange={(e) => setTimeFilter(e.target.value)}
                   className="bg-transparent focus:outline-none"
                 >
-                  <option value="all">Any Time</option>
-                  <option value="quick">Quick (≤30 min)</option>
-                  <option value="medium">Medium (30-60 min)</option>
-                  <option value="slow">Slow (60+ min)</option>
+                  {timeFilters.map((time) => (
+                    <option key={time.id} value={time.id}>
+                      {time.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -356,6 +445,15 @@ export default function SavedRecipes() {
                           <p className="text-gray-600 text-sm line-clamp-2">
                             {recipe.description}
                           </p>
+                          <div className="mt-2">
+                            <span className={`px-2 py-1 text-xs rounded-full ${
+                              getRecipeCategory(recipe) === 'veg' ? 'bg-green-100 text-green-700' :
+                              getRecipeCategory(recipe) === 'nonveg' ? 'bg-red-100 text-red-700' :
+                              'bg-pink-100 text-pink-700'
+                            }`}>
+                              {getRecipeCategory(recipe).toUpperCase()}
+                            </span>
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">

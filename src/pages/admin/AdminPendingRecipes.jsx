@@ -41,7 +41,7 @@ const AdminPendingRecipes = () => {
     const approveRecipe = async (id) => {
         try {
             await axios.put(
-                `http://localhost:5000/api/admin/recipes/${id}`,
+                `http://localhost:5000/api/admin/recipes/status/${id}`,
                 {},
                 {
                     headers: {

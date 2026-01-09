@@ -20,6 +20,11 @@ import EditRecipe from "./pages/user/EditRecipe";
 import RecipeDetail from "./pages/user/RecipeDetail";
 import Profile from "./pages/Profile";
 import AboutUs from "./pages/AboutUs";
+import AdminRecipes from "./pages/admin/AdminRecipes";
+import EditRecipeAdmin from "./pages/admin/EditRecipeAdmin";
+import AddRecipeAdmin from "./pages/admin/AddRecipeAdmin";
+import Home from "./pages/Home";
+import ContactUs from "./pages/ContactUs";
 
 
 <Toaster position='top-right' />
@@ -40,7 +45,8 @@ function App() {
 
       <Routes>
         {/* PUBLIC */}
-        <Route path="/" element={<AllRecipes />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/recipe" element={<AllRecipes />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
@@ -75,6 +81,7 @@ function App() {
 
         <Route path="/profile" element={<Profile />} />
         <Route path="/about" element={<AboutUs />} />
+        <Route path="/contact" element={<ContactUs />} />
 
 
 
@@ -93,6 +100,31 @@ function App() {
           element={
             <AdminRoute>
               <AdminPendingRecipes />
+            </AdminRoute>
+          }
+        />
+      
+      <Route
+          path="/admin/recipes"
+          element={
+            <AdminRoute>
+              <AdminRecipes />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/recipes/edit/:id"
+          element={
+            <AdminRoute>
+              <EditRecipeAdmin />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/recipes/add"
+          element={
+            <AdminRoute>
+              <AddRecipeAdmin />
             </AdminRoute>
           }
         />
