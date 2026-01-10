@@ -26,11 +26,17 @@ exports.protect = async (req, res, next) => {
       return res.status(401).json({ message: "User not found" });
     }
 
+    if (user.isBlocked) {
+      return res
+        .status(403)
+        .json({ message: "Your account has been blocked by admin" });
+    }
     // 🔥 BACKWARD COMPATIBLE
     req.user = {
       ...decoded,       // keeps id, role exactly same
       name: user.name,  // adds name safely
     };
+
 
     next();
   } catch (error) {

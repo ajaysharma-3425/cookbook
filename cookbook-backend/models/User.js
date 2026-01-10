@@ -26,9 +26,14 @@ const userSchema = new mongoose.Schema(
       default: "user",
     },
 
-    avatar:{
+    avatar: {
       type: "String",
       default: ""
+    },
+
+    isBlocked: {
+      type: Boolean,
+      default: false,
     },
 
     savedRecipes: [

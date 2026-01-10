@@ -130,6 +130,11 @@ export default function Navbar({ user1, setUser }) {
                 <NavLink to="/admin/recipes" icon={<AlertCircle className="h-4 w-4" />}>
                   All Recipes
                 </NavLink>
+                 <NavLink to="/admin/users" icon={<AlertCircle className="h-4 w-4" />}>
+                  All Users
+                </NavLink>
+                
+
               </>
             )}
           </div>
@@ -318,7 +323,14 @@ export default function Navbar({ user1, setUser }) {
                 <MobileNavLink to="/admin/pending" icon={<AlertCircle />} onClick={closeMobileMenu}>
                   Pending Recipes
                 </MobileNavLink>
+                <MobileNavLink to="/admin/recipe" icon={<AlertCircle />} onClick={closeMobileMenu}>
+                  All Recipes
+                </MobileNavLink>
+                <MobileNavLink to="/admin/users" icon={<AlertCircle />} onClick={closeMobileMenu}>
+                  All Users
+                </MobileNavLink>
               </>
+              
             )}
 
             {/* Authentication Links */}

@@ -25,6 +25,8 @@ import EditRecipeAdmin from "./pages/admin/EditRecipeAdmin";
 import AddRecipeAdmin from "./pages/admin/AddRecipeAdmin";
 import Home from "./pages/Home";
 import ContactUs from "./pages/ContactUs";
+import AdminUsers from "./pages/admin/AdminUsers";
+import EditUserAdmin from "./pages/admin/EditUserAdmin";
 
 
 <Toaster position='top-right' />
@@ -80,8 +82,10 @@ function App() {
         <Route path="/recipe/:id" element={<RecipeDetail />} />
 
         <Route path="/profile" element={<Profile />} />
+        
         <Route path="/about" element={<AboutUs />} />
         <Route path="/contact" element={<ContactUs />} />
+        <Route path="/admin/users/:id/profile" element={<Profile />} />
 
 
 
@@ -125,6 +129,22 @@ function App() {
           element={
             <AdminRoute>
               <AddRecipeAdmin />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <AdminRoute>
+              <AdminUsers />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/users/edit/:id"
+          element={
+            <AdminRoute>
+              <EditUserAdmin />
             </AdminRoute>
           }
         />

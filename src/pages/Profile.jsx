@@ -42,6 +42,7 @@ export default function Profile() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState("grid");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  
 
   useEffect(() => {
     fetchProfile();

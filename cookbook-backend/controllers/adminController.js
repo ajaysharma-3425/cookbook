@@ -47,47 +47,47 @@ exports.createRecipeAdmin = async (req, res) => {
 
 
 exports.getAdminDashboardStats = async (req, res) => {
-    try {
-        const [
-            totalRecipes,
-            approvedRecipes,
-            pendingRecipes,
-            rejectedRecipes,
-            totalUsers,
-            creators,
-            recentActivity,
-        ] = await Promise.all([
-            Recipe.countDocuments(),
-            Recipe.countDocuments({ status: "approved" }),
-            Recipe.countDocuments({ status: "pending" }),
-            Recipe.countDocuments({ status: "rejected" }),
-            User.countDocuments({ role: "user" }),
-            Recipe.distinct("createdBy").then((ids) => ids.length),
+  try {
+    const [
+      totalRecipes,
+      approvedRecipes,
+      pendingRecipes,
+      rejectedRecipes,
+      totalUsers,
+      creators,
+      recentActivity,
+    ] = await Promise.all([
+      Recipe.countDocuments(),
+      Recipe.countDocuments({ status: "approved" }),
+      Recipe.countDocuments({ status: "pending" }),
+      Recipe.countDocuments({ status: "rejected" }),
+      User.countDocuments({ role: "user" }),
+      Recipe.distinct("createdBy").then((ids) => ids.length),
 
-            // 🔥 ROW 4 DATA
-            Notification.find()
-                .sort({ createdAt: -1 })
-                .limit(5)
-                .select("title message createdAt"),
-        ]);
+      // 🔥 ROW 4 DATA
+      Notification.find()
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .select("title message createdAt"),
+    ]);
 
-        res.json({
-            recipes: {
-                total: totalRecipes,
-                approved: approvedRecipes,
-                pending: pendingRecipes,
-                rejected: rejectedRecipes,
-            },
-            users: {
-                total: totalUsers,
-                creators,
-            },
-            activity: recentActivity,
-        });
-    } catch (error) {
-        console.error("ADMIN DASHBOARD ERROR:", error);
-        res.status(500).json({ message: "Server error" });
-    }
+    res.json({
+      recipes: {
+        total: totalRecipes,
+        approved: approvedRecipes,
+        pending: pendingRecipes,
+        rejected: rejectedRecipes,
+      },
+      users: {
+        total: totalUsers,
+        creators,
+      },
+      activity: recentActivity,
+    });
+  } catch (error) {
+    console.error("ADMIN DASHBOARD ERROR:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 // ADMIN: get all recipes (with filters)
@@ -125,6 +125,9 @@ exports.updateRecipeAdmin = async (req, res) => {
     recipe.status = req.body.status;
     recipe.steps = req.body.steps;
     recipe.ingredients = req.body.ingredients;
+    if (req.body.image !== undefined) {
+      recipe.image = req.body.image;
+    }
 
     await recipe.save();
 
@@ -166,4 +169,62 @@ exports.getRecipeByIdAdmin = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+exports.getAllUsersAdmin = async (req, res) => {
+  const users = await User.find().select("-password");
+  res.json(users);
+};
+
+exports.getUserByIdAdmin = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select(
+      "name email role isBlocked createdAt"
+    );
+
+    if (!user)
+      return res.status(404).json({ message: "User not found" });
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+exports.updateUserAdmin = async (req, res) => {
+  try {
+    const { name, role, isBlocked } = req.body;
+
+    const user = await User.findById(req.params.id);
+    if (!user)
+      return res.status(404).json({ message: "User not found" });
+
+    if (name !== undefined) user.name = name;
+    if (role !== undefined) user.role = role;
+
+    if (typeof isBlocked === "boolean") {
+      user.isBlocked = isBlocked;
+    }
+
+    await user.save();
+
+    res.json({
+      message: "User updated successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("ADMIN UPDATE USER ERROR:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+exports.deleteUserAdmin = async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  await user.deleteOne();
+  res.json({ message: "User deleted" });
 };
