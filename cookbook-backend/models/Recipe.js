@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const recipeSchema = new mongoose.Schema(
   {
@@ -29,7 +29,7 @@ const recipeSchema = new mongoose.Schema(
 
     image: {
       type: String,
-      default: "",// later cloudinary / upload
+      default: "",
     },
 
     createdBy: {
@@ -50,9 +50,8 @@ const recipeSchema = new mongoose.Schema(
     },
 
     cookingTime: {
-      type: Number, // minutes
+      type: Number,
     },
-
 
     likes: [
       {
@@ -60,9 +59,8 @@ const recipeSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
-
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Recipe", recipeSchema);
+export default mongoose.model("Recipe", recipeSchema);

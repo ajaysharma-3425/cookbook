@@ -1,11 +1,10 @@
-const Recipe = require("../models/Recipe");
-const Notification = require("../models/Notification");
-const User = require("../models/User");
-const mongoose = require("mongoose");
+import Recipe from "../models/Recipe.js";
+import Notification from "../models/Notification.js";
+import User from "../models/User.js";
+import mongoose from "mongoose";
 
 
-
-exports.createRecipe = async (req, res) => {
+export const createRecipe = async (req, res) => {
   try {
     const { title, description, ingredients, steps, image, cookingTime } = req.body;
 
@@ -45,7 +44,7 @@ exports.createRecipe = async (req, res) => {
 };
 
 // Admin: get all pending recipes
-exports.getPendingRecipes = async (req, res) => {
+export const getPendingRecipes = async (req, res) => {
   try {
     const recipes = await Recipe.find({ status: "pending" }).populate(
       "createdBy",
@@ -58,7 +57,7 @@ exports.getPendingRecipes = async (req, res) => {
 };
 
 // Admin: approve or reject recipe
-exports.updateRecipeStatus = async (req, res) => {
+export const updateRecipeStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -91,7 +90,7 @@ exports.updateRecipeStatus = async (req, res) => {
 };
 
 // Public: approved recipes
-exports.getApprovedRecipes = async (req, res) => {
+export const getApprovedRecipes = async (req, res) => {
   try {
     const recipes = await Recipe.find({ status: "approved" })
       .populate("createdBy", "name")
@@ -104,7 +103,7 @@ exports.getApprovedRecipes = async (req, res) => {
 };
 
 // User: my submitted recipes
-exports.getMyRecipes = async (req, res) => {
+export const getMyRecipes = async (req, res) => {
   try {
     const recipes = await Recipe.find({ createdBy: req.user.id }).sort({
       createdAt: -1,
@@ -117,7 +116,7 @@ exports.getMyRecipes = async (req, res) => {
 };
 
 
-exports.saveRecipe = async (req, res) => {
+export const saveRecipe = async (req, res) => {
   try {
     const userId = req.user.id;
     const recipeId = req.params.id;
@@ -161,8 +160,7 @@ exports.saveRecipe = async (req, res) => {
 };
 
 
-
-exports.toggleLike = async (req, res) => {
+export const toggleLike = async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id);
 
@@ -209,7 +207,7 @@ exports.toggleLike = async (req, res) => {
 
 
 // User: get saved recipes
-exports.getSavedRecipes = async (req, res) => {
+export const getSavedRecipes = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate({
       path: "savedRecipes",
@@ -227,7 +225,7 @@ exports.getSavedRecipes = async (req, res) => {
 };
 
 
-exports.unsaveRecipe = async (req, res) => {
+export const unsaveRecipe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
 
@@ -244,7 +242,7 @@ exports.unsaveRecipe = async (req, res) => {
 };
 
 
-exports.deleteMyRecipe = async (req, res) => {
+export const deleteMyRecipe = async (req, res) => {
   const recipe = await Recipe.findById(req.params.id);
 
   if (!recipe) {
@@ -272,7 +270,7 @@ exports.deleteMyRecipe = async (req, res) => {
 };
 
 
-exports.rejectRecipe = async (req, res) => {
+export const rejectRecipe = async (req, res) => {
   try {
     const { id } = req.params;
     const { reason } = req.body;
@@ -318,7 +316,7 @@ exports.rejectRecipe = async (req, res) => {
 };
 
 
-exports.updateMyRecipe = async (req, res) => {
+export const updateMyRecipe = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, description, ingredients, steps } = req.body;
@@ -356,7 +354,7 @@ exports.updateMyRecipe = async (req, res) => {
 };
 
 // GET single recipe (owner only)
-exports.getRecipeById = async (req, res) => {
+export const getRecipeById = async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id)
       .populate("createdBy", "name");

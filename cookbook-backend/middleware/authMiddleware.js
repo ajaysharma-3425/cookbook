@@ -1,7 +1,7 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
-exports.protect = async (req, res, next) => {
+export const protect = async (req, res, next) => {
   let token;
 
   if (
@@ -28,12 +28,12 @@ exports.protect = async (req, res, next) => {
 
     // 🔥 BACKWARD COMPATIBLE
     req.user = {
-      ...decoded,       // keeps id, role exactly same
-      name: user.name,  // adds name safely
+      ...decoded,      // keeps id, role
+      name: user.name, // adds name safely
     };
 
     next();
   } catch (error) {
-    res.status(401).json({ message: "Token invalid" });
+    return res.status(401).json({ message: "Token invalid" });
   }
 };
