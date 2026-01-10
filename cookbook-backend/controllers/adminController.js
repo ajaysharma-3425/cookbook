@@ -1,9 +1,9 @@
-import Recipe from "../models/Recipe.js";
-import User from "../models/User.js";
-import Notification from "../models/Notification.js";
+const Recipe = require("../models/Recipe");
+const User = require("../models/User");
+const Notification = require("../models/Notification")
 
 // ADMIN: add new recipe
-export const createRecipeAdmin = async (req, res) => {
+exports.createRecipeAdmin = async (req, res) => {
   try {
     const {
       title,
@@ -12,9 +12,10 @@ export const createRecipeAdmin = async (req, res) => {
       steps,
       image,
       cookingTime,
-      status,
+      status
     } = req.body;
 
+    // 🔴 VALIDATION
     if (
       !title ||
       !description ||
@@ -30,7 +31,7 @@ export const createRecipeAdmin = async (req, res) => {
       description,
       ingredients,
       steps,
-      image: image || "",
+      image: image || "", // 👈 allow base64 for now
       cookingTime,
       status: status || "approved",
       createdBy: req.user.id,
@@ -38,92 +39,131 @@ export const createRecipeAdmin = async (req, res) => {
 
     res.status(201).json(recipe);
   } catch (error) {
+    console.error(error);
     res.status(400).json({ message: error.message });
   }
 };
 
-export const getAdminDashboardStats = async (req, res) => {
-  try {
-    const [
-      totalRecipes,
-      approvedRecipes,
-      pendingRecipes,
-      rejectedRecipes,
-      totalUsers,
-      creators,
-      recentActivity,
-    ] = await Promise.all([
-      Recipe.countDocuments(),
-      Recipe.countDocuments({ status: "approved" }),
-      Recipe.countDocuments({ status: "pending" }),
-      Recipe.countDocuments({ status: "rejected" }),
-      User.countDocuments({ role: "user" }),
-      Recipe.distinct("createdBy").then((ids) => ids.length),
-      Notification.find()
-        .sort({ createdAt: -1 })
-        .limit(5)
-        .select("title message createdAt"),
-    ]);
 
-    res.json({
-      recipes: {
-        total: totalRecipes,
-        approved: approvedRecipes,
-        pending: pendingRecipes,
-        rejected: rejectedRecipes,
-      },
-      users: { total: totalUsers, creators },
-      activity: recentActivity,
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
+
+exports.getAdminDashboardStats = async (req, res) => {
+    try {
+        const [
+            totalRecipes,
+            approvedRecipes,
+            pendingRecipes,
+            rejectedRecipes,
+            totalUsers,
+            creators,
+            recentActivity,
+        ] = await Promise.all([
+            Recipe.countDocuments(),
+            Recipe.countDocuments({ status: "approved" }),
+            Recipe.countDocuments({ status: "pending" }),
+            Recipe.countDocuments({ status: "rejected" }),
+            User.countDocuments({ role: "user" }),
+            Recipe.distinct("createdBy").then((ids) => ids.length),
+
+            // 🔥 ROW 4 DATA
+            Notification.find()
+                .sort({ createdAt: -1 })
+                .limit(5)
+                .select("title message createdAt"),
+        ]);
+
+        res.json({
+            recipes: {
+                total: totalRecipes,
+                approved: approvedRecipes,
+                pending: pendingRecipes,
+                rejected: rejectedRecipes,
+            },
+            users: {
+                total: totalUsers,
+                creators,
+            },
+            activity: recentActivity,
+        });
+    } catch (error) {
+        console.error("ADMIN DASHBOARD ERROR:", error);
+        res.status(500).json({ message: "Server error" });
+    }
 };
 
-export const getAllRecipesAdmin = async (req, res) => {
+// ADMIN: get all recipes (with filters)
+exports.getAllRecipesAdmin = async (req, res) => {
   try {
-    const filter = req.query.status ? { status: req.query.status } : {};
+    const { status } = req.query; // optional filter
+
+    const filter = {};
+    if (status) filter.status = status;
+
     const recipes = await Recipe.find(filter)
       .populate("createdBy", "name email")
       .sort({ createdAt: -1 });
 
     res.json(recipes);
-  } catch {
+  } catch (error) {
+    console.error("ADMIN GET RECIPES ERROR:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-export const updateRecipeAdmin = async (req, res) => {
+// ADMIN: update recipe (edit)
+// UPDATE recipe (admin)
+exports.updateRecipeAdmin = async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id);
-    if (!recipe) return res.status(404).json({ message: "Recipe not found" });
+
+    if (!recipe) {
+      return res.status(404).json({ message: "Recipe not found" });
+    }
 
     recipe.title = req.body.title;
     recipe.description = req.body.description;
-    recipe.cookingTime = req.body.time || req.body.cookingTime;
+    recipe.cookingTime = req.body.time || req.body.cookingTime; // ye check karo
     recipe.status = req.body.status;
     recipe.steps = req.body.steps;
     recipe.ingredients = req.body.ingredients;
 
     await recipe.save();
+
     res.json({ message: "Recipe updated successfully", recipe });
-  } catch {
+  } catch (error) {
+    console.error("ADMIN UPDATE ERROR:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+// ADMIN: delete recipe
+exports.deleteRecipeAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const recipe = await Recipe.findByIdAndDelete(id);
+
+    if (!recipe) {
+      return res.status(404).json({ message: "Recipe not found" });
+    }
+
+    res.json({ message: "Recipe deleted successfully" });
+  } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
 };
 
-export const deleteRecipeAdmin = async (req, res) => {
-  const recipe = await Recipe.findByIdAndDelete(req.params.id);
-  if (!recipe)
-    return res.status(404).json({ message: "Recipe not found" });
 
-  res.json({ message: "Recipe deleted successfully" });
-};
+// Get Single Recipe Admin
+exports.getRecipeByIdAdmin = async (req, res) => {
+  try {
+    const recipe = await Recipe.findById(req.params.id);
 
-export const getRecipeByIdAdmin = async (req, res) => {
-  const recipe = await Recipe.findById(req.params.id);
-  if (!recipe)
-    return res.status(404).json({ message: "Recipe not found" });
+    if (!recipe)
+      return res.status(404).json({ message: "Recipe not found" });
 
-  res.json(recipe);
+    res.json(recipe);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };

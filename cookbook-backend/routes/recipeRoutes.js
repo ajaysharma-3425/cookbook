@@ -1,7 +1,7 @@
-import express from "express";
+const express = require("express");
 const router = express.Router();
 
-import {
+const {
   createRecipe,
   getApprovedRecipes,
   getMyRecipes,
@@ -9,15 +9,16 @@ import {
   toggleLike,
   updateMyRecipe,
   getRecipeById,
-  getSavedRecipes,
+} = require("../controllers/recipeController");
+
+const { getSavedRecipes } = require("../controllers/recipeController");
+const {
   unsaveRecipe,
   deleteMyRecipe,
-  rejectRecipe,
-} from "../controllers/recipeController.js";
+} = require("../controllers/recipeController");
+const { protect } = require("../middleware/authMiddleware");
+const { rejectRecipe } = require("../controllers/recipeController");
 
-import { protect } from "../middleware/authMiddleware.js";
-
-/* User recipes */
 router.put("/reject/:id", protect, rejectRecipe);
 router.post("/", protect, createRecipe);
 router.get("/", getApprovedRecipes);
@@ -29,5 +30,7 @@ router.delete("/:id/save", protect, unsaveRecipe);
 router.delete("/:id", protect, deleteMyRecipe);
 router.get("/:id", protect, getRecipeById);
 router.put("/:id", protect, updateMyRecipe);
+// router.get("/:id", protect, getSingleRecipe);
 
-export default router;
+
+module.exports = router;

@@ -1,45 +1,35 @@
-// const express = require("express");
-// const dotenv = require("dotenv");
-// const cors = require("cors");
-// const connectDB = require("./config/db");
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const connectDB = require("./config/db");
+const authRoutes = require("./routes/authRoutes");
 
-// /* routes */
-// const authRoutes = require("./routes/authRoutes");
-// const recipeRoutes = require("./routes/recipeRoutes");
-// const adminRoutes = require("./routes/adminRoutes");
-// const notificationRoutes = require("./routes/notificationRoutes");
+dotenv.config();
+connectDB();
 
-// dotenv.config();
+const app = express();
 
-// /* db connect */
-// connectDB();
 
-// const app = express();
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Vite frontend
+    credentials: true,
+  })
+);
 
-// /* middlewares */
-// app.use(
-//   cors({
-//     origin: [
-//       "http://localhost:5173",
-//       "https://cookbook-new.vercel.app",
-//     ],
-//     credentials: true,
-//   })
-// );
+app.use(express.json());
 
-// app.use(express.json());
+app.use("/api/auth", authRoutes);
 
-// /* routes */
-// app.use("/api/auth", authRoutes);
-// app.use("/api/recipes", recipeRoutes);
-// app.use("/api/admin", adminRoutes);
-// app.use("/api/notifications", notificationRoutes);
+app.get("/", (req, res) => {
+  res.send("Cookbook API running");
+});
+app.use("/api/recipes", require("./routes/recipeRoutes"));
+app.use("/api/admin", require("./routes/adminRoutes"));
+app.use("/api/notifications", require("./routes/notificationRoutes"));
 
-// /* test */
-// app.get("/", (req, res) => {
-//   res.send("Cookbook API running on Vercel 🚀");
-// });
 
-// /* ❌ PORT / listen NAHI */
-// /* ✅ CommonJS export *
-// module.exports = app;
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () =>
+  console.log(`Server running on port ${PORT}`)
+);

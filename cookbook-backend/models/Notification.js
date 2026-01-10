@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const notificationSchema = new mongoose.Schema(
   {
@@ -25,7 +25,7 @@ const notificationSchema = new mongoose.Schema(
     },
 
     link: {
-      type: String,
+      type: String, // frontend route
     },
 
     isRead: {
@@ -36,4 +36,4 @@ const notificationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Notification", notificationSchema);
+module.exports = mongoose.model("Notification", notificationSchema);
