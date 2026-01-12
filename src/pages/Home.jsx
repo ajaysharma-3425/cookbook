@@ -46,7 +46,7 @@ export default function Home() {
       const suggestions = recipes.filter(recipe =>
         recipe.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         recipe.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        recipe.ingredients?.some(ing => 
+        recipe.ingredients?.some(ing =>
           ing.toLowerCase().includes(searchQuery.toLowerCase())
         )
       ).slice(0, 5); // Show max 5 suggestions
@@ -64,21 +64,21 @@ export default function Home() {
       const res = await getApprovedRecipes();
       const allRecipes = res.data || res || [];
       setRecipes(allRecipes);
-      
+
       // Featured recipes (approved and highly rated)
       const featured = allRecipes
         .filter(recipe => recipe.status === "approved")
         .sort((a, b) => (b.likes || 0) - (a.likes || 0))
         .slice(0, 4);
       setFeaturedRecipes(featured);
-      
+
       // Trending recipes (most viewed)
       const trending = allRecipes
         .filter(recipe => recipe.status === "approved")
         .sort((a, b) => (b.views || 0) - (a.views || 0))
         .slice(0, 6);
       setTrendingRecipes(trending);
-      
+
     } catch (error) {
       console.error("Error fetching recipes:", error);
       toast.error("Failed to load recipes");
@@ -115,10 +115,10 @@ export default function Home() {
     e.preventDefault();
     if (searchQuery.trim()) {
       // Find exact match first
-      const exactMatch = recipes.find(recipe => 
+      const exactMatch = recipes.find(recipe =>
         recipe.title?.toLowerCase() === searchQuery.toLowerCase()
       );
-      
+
       if (exactMatch) {
         // If exact match found, navigate to that recipe
         navigate(`/recipe/${exactMatch._id}`);
@@ -127,11 +127,11 @@ export default function Home() {
         const matchingRecipes = recipes.filter(recipe =>
           recipe.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           recipe.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          recipe.ingredients?.some(ing => 
+          recipe.ingredients?.some(ing =>
             ing.toLowerCase().includes(searchQuery.toLowerCase())
           )
         );
-        
+
         if (matchingRecipes.length > 0) {
           // Navigate to first matching recipe
           navigate(`/recipe/${matchingRecipes[0]._id}`);
@@ -164,11 +164,11 @@ export default function Home() {
     if (activeCategory === "all") return true;
     if (activeCategory === "quick") return (recipe.cookingTime || 0) <= 30;
     if (activeCategory === "popular") return (recipe.likes || 0) > 10;
-    
+
     // Simple category detection based on keywords
     const title = recipe.title?.toLowerCase() || '';
     const desc = recipe.description?.toLowerCase() || '';
-    
+
     if (activeCategory === "veg") {
       const nonVegKeywords = ['chicken', 'fish', 'meat', 'egg', 'biryani', 'mutton'];
       return !nonVegKeywords.some(keyword => title.includes(keyword) || desc.includes(keyword));
@@ -181,7 +181,7 @@ export default function Home() {
       const dessertKeywords = ['cake', 'sweet', 'dessert', 'chocolate', 'ice cream', 'cookie'];
       return dessertKeywords.some(keyword => title.includes(keyword) || desc.includes(keyword));
     }
-    
+
     return true;
   });
 
@@ -197,7 +197,7 @@ export default function Home() {
             <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-10">
               Join thousands of home cooks sharing their favorite recipes. Find inspiration, save your favorites, and become a better cook every day.
             </p>
-            
+
             {/* Search Bar with Suggestions */}
             <form onSubmit={handleSearch} className="max-w-2xl mx-auto relative">
               <div className="relative">
@@ -257,7 +257,7 @@ export default function Home() {
                         <ArrowRight className="h-4 w-4 text-gray-400" />
                       </button>
                     ))}
-                    
+
                     {/* View all results */}
                     {searchQuery.trim() && (
                       <button
@@ -280,16 +280,20 @@ export default function Home() {
             </form>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 max-w-4xl mx-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-8 sm:mt-12 max-w-4xl mx-auto">
               {stats.map((stat, index) => (
-                <div key={index} className="bg-white p-4 rounded-xl shadow-sm border">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${stat.color.replace('text', 'bg')} bg-opacity-10`}>
+                <div key={index} className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className={`p-1.5 sm:p-2 rounded-lg ${stat.color.replace('text', 'bg')} bg-opacity-10`}>
                       {stat.icon}
                     </div>
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                      <p className="text-sm text-gray-600">{stat.label}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-base sm:text-lg md:text-2xl font-bold text-gray-900 truncate">
+                        {stat.value}
+                      </p>
+                      <p className="text-xs sm:text-sm text-gray-600 truncate">
+                        {stat.label}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -306,23 +310,21 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-gray-900 mb-3">Browse by Category</h2>
             <p className="text-gray-600">Find recipes that match your mood and time</p>
           </div>
-          
+
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             {categories.map((category) => (
               <button
                 key={category.id}
                 onClick={() => setActiveCategory(category.id)}
-                className={`flex flex-col items-center gap-3 p-4 rounded-xl border transition-all ${
-                  activeCategory === category.id
+                className={`flex flex-col items-center gap-3 p-4 rounded-xl border transition-all ${activeCategory === category.id
                     ? "bg-gradient-to-br from-orange-50 to-orange-100 border-orange-300 text-orange-700"
                     : "bg-white border-gray-200 hover:border-orange-300 hover:bg-orange-50"
-                }`}
+                  }`}
               >
-                <div className={`p-3 rounded-lg ${
-                  activeCategory === category.id
+                <div className={`p-3 rounded-lg ${activeCategory === category.id
                     ? "bg-orange-500 text-white"
                     : "bg-gray-100 text-gray-600"
-                }`}>
+                  }`}>
                   {category.icon}
                 </div>
                 <span className="text-sm font-medium">{category.name}</span>
@@ -499,7 +501,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-gray-900 mb-3">Explore World Cuisines</h2>
             <p className="text-gray-600">Travel through food with recipes from around the globe</p>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {cuisines.map((cuisine) => (
               <div
