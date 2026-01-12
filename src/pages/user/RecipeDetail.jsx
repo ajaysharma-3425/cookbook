@@ -142,10 +142,18 @@ export default function RecipeDetail() {
 
   const getCategory = () => {
     const title = recipe?.title?.toLowerCase() || '';
-    if (title.includes('chicken') || title.includes('fish') || title.includes('meat')) 
+    const description = recipe?.description?.toLowerCase() || '';
+    
+    if (title.includes('non-veg') || title.includes('meat') || title.includes('chicken') || 
+        title.includes('fish') || title.includes('mutton') || title.includes('beef') ||
+        description.includes('non-veg') || description.includes('meat') || 
+        description.includes('chicken') || description.includes('fish')) {
       return { name: 'Non-Veg', color: 'bg-red-100 text-red-700' };
-    if (title.includes('dessert') || title.includes('sweet') || title.includes('ice cream'))
+    }
+    if (title.includes('dessert') || title.includes('sweet') || title.includes('ice cream') || 
+        title.includes('cake') || title.includes('pastry')) {
       return { name: 'Dessert', color: 'bg-pink-100 text-pink-700' };
+    }
     return { name: 'Vegetarian', color: 'bg-green-100 text-green-700' };
   };
 
@@ -199,16 +207,20 @@ export default function RecipeDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Recipe Image & Stats */}
           <div className="lg:col-span-2">
-            {/* Recipe Image */}
+            {/* Recipe Image - Fixed Size */}
             <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 mb-8">
               {recipe.image ? (
-                <>
+                <div className="relative h-[400px] md:h-[500px] w-full">
                   <img
                     src={recipe.image}
                     alt={recipe.title}
-                    className={`w-full h-64 md:h-96 object-cover transition-opacity duration-300 ${
+                    className={`w-full h-full object-cover transition-opacity duration-300 ${
                       imageLoaded ? 'opacity-100' : 'opacity-0'
                     }`}
+                    style={{
+                      objectFit: 'cover',
+                      objectPosition: 'center'
+                    }}
                     onLoad={() => setImageLoaded(true)}
                     onError={(e) => {
                       e.target.style.display = 'none';
@@ -217,13 +229,16 @@ export default function RecipeDetail() {
                   />
                   {!imageLoaded && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <ChefHat className="h-16 w-16 text-gray-400" />
+                      <ChefHat className="h-16 w-16 text-gray-400 animate-pulse" />
                     </div>
                   )}
-                </>
+                </div>
               ) : (
-                <div className="h-64 md:h-96 flex items-center justify-center">
-                  <ChefHat className="h-20 w-20 text-gray-400" />
+                <div className="h-[400px] md:h-[500px] flex items-center justify-center">
+                  <div className="text-center">
+                    <ChefHat className="h-20 w-20 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">No image available</p>
+                  </div>
                 </div>
               )}
               
@@ -238,14 +253,14 @@ export default function RecipeDetail() {
               <div className="absolute top-4 right-4 flex gap-2">
                 <button
                   onClick={handlePrint}
-                  className="p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
+                  className="p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors shadow-sm"
                   title="Print Recipe"
                 >
                   <Printer className="h-5 w-5 text-gray-700" />
                 </button>
                 <button
                   onClick={handleShare}
-                  className="p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
+                  className="p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors shadow-sm"
                   title="Share Recipe"
                 >
                   <Share2 className="h-5 w-5 text-gray-700" />
@@ -255,13 +270,22 @@ export default function RecipeDetail() {
 
             {/* Recipe Title & Description */}
             <div className="mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                {recipe.title}
-              </h1>
+              <div className="flex items-start justify-between mb-4">
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+                  {recipe.title}
+                </h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${category.color}`}>
+                    {category.name}
+                  </span>
+                </div>
+              </div>
               
-              <p className="text-gray-600 text-lg leading-relaxed">
-                {recipe.description}
-              </p>
+              <div className="prose prose-lg max-w-none">
+                <p className="text-gray-600 text-lg leading-relaxed whitespace-pre-line">
+                  {recipe.description}
+                </p>
+              </div>
             </div>
 
             {/* Recipe Stats */}
@@ -272,8 +296,8 @@ export default function RecipeDetail() {
                     <Clock className="h-5 w-5 text-orange-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Prep Time</p>
-                    <p className="font-semibold text-gray-900">{recipe.cookingTime} min</p>
+                    <p className="text-sm text-gray-500">Cooking Time</p>
+                    <p className="font-semibold text-gray-900">{recipe.cookingTime || recipe.time} min</p>
                   </div>
                 </div>
               </div>
@@ -322,10 +346,13 @@ export default function RecipeDetail() {
                   <ShoppingBag className="h-6 w-6 text-blue-600" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900">Ingredients</h2>
+                <span className="text-gray-500 text-sm">
+                  ({recipe.ingredients?.length || 0} items)
+                </span>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {recipe.ingredients.map((ingredient, index) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {recipe.ingredients?.map((ingredient, index) => (
                   <div 
                     key={index} 
                     className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
@@ -344,17 +371,20 @@ export default function RecipeDetail() {
                   <Utensils className="h-6 w-6 text-green-600" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900">Cooking Instructions</h2>
+                <span className="text-gray-500 text-sm">
+                  ({recipe.steps?.length || 0} steps)
+                </span>
               </div>
               
               <div className="space-y-6">
-                {recipe.steps.map((step, index) => (
-                  <div key={index} className="flex gap-4">
+                {recipe.steps?.map((step, index) => (
+                  <div key={index} className="flex gap-4 group">
                     <div className="flex-shrink-0">
-                      <div className="h-8 w-8 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center">
+                      <div className="h-8 w-8 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <span className="text-white font-bold text-sm">{index + 1}</span>
                       </div>
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 pt-1">
                       <p className="text-gray-700 leading-relaxed">{step}</p>
                     </div>
                   </div>
@@ -402,8 +432,8 @@ export default function RecipeDetail() {
                   disabled={liking}
                   className={`w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg transition-all ${
                     isLiked 
-                      ? 'bg-red-50 text-red-600 hover:bg-red-100' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200' 
+                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
                   } ${liking ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <Heart className={`h-5 w-5 ${isLiked ? 'fill-red-600' : ''}`} />
@@ -417,8 +447,8 @@ export default function RecipeDetail() {
                   disabled={saving}
                   className={`w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg transition-all ${
                     isSaved 
-                      ? 'bg-blue-50 text-blue-600 hover:bg-blue-100' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200' 
+                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
                   } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <Bookmark className={`h-5 w-5 ${isSaved ? 'fill-blue-600' : ''}`} />
@@ -429,7 +459,7 @@ export default function RecipeDetail() {
 
                 <button
                   onClick={handleShare}
-                  className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all"
+                  className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all border border-orange-500"
                 >
                   <Share2 className="h-5 w-5" />
                   <span className="font-medium">Share Recipe</span>
@@ -439,8 +469,11 @@ export default function RecipeDetail() {
 
             {/* Tips & Notes */}
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-6">
-              <h3 className="font-semibold text-blue-800 mb-3">👨‍🍳 Chef's Tips</h3>
-              <ul className="space-y-2 text-sm text-blue-700">
+              <h3 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                <ChefIcon className="h-5 w-5" />
+                Chef's Tips
+              </h3>
+              <ul className="space-y-3 text-sm text-blue-700">
                 <li className="flex items-start gap-2">
                   <div className="h-2 w-2 mt-2 rounded-full bg-blue-500 flex-shrink-0"></div>
                   <span>Adjust spices according to your taste preference</span>
@@ -453,7 +486,42 @@ export default function RecipeDetail() {
                   <div className="h-2 w-2 mt-2 rounded-full bg-blue-500 flex-shrink-0"></div>
                   <span>Use fresh ingredients for the best results</span>
                 </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 mt-2 rounded-full bg-blue-500 flex-shrink-0"></div>
+                  <span>Cook on medium heat for even cooking</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-2 w-2 mt-2 rounded-full bg-blue-500 flex-shrink-0"></div>
+                  <span>Taste and adjust seasoning before serving</span>
+                </li>
               </ul>
+            </div>
+
+            {/* Nutritional Info */}
+            <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-2xl p-6">
+              <h3 className="font-semibold text-green-800 mb-3">📊 Nutritional Info (per serving)</h3>
+              <div className="space-y-2 text-sm text-green-700">
+                <div className="flex justify-between">
+                  <span>Calories:</span>
+                  <span className="font-medium">~350 kcal</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Protein:</span>
+                  <span className="font-medium">15g</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Carbs:</span>
+                  <span className="font-medium">45g</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Fat:</span>
+                  <span className="font-medium">12g</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Fiber:</span>
+                  <span className="font-medium">5g</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,9 +1,9 @@
-import { 
-  ChefHat, 
-  Users, 
-  Heart, 
-  Target, 
-  Award, 
+import {
+  ChefHat,
+  Users,
+  Heart,
+  Target,
+  Award,
   BookOpen,
   Globe,
   TrendingUp,
@@ -157,7 +157,7 @@ export default function AboutUs() {
               About <span className="text-orange-600">Cook</span><span className="text-yellow-600">Book</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto mb-8 animate-fade-in-up animation-delay-300">
-              Where passion for food meets the joy of cooking. 
+              Where passion for food meets the joy of cooking.
               <span className="block mt-2 text-orange-600 font-semibold animate-pulse">
                 Building the world's most loved recipe community.
               </span>
@@ -173,20 +173,27 @@ export default function AboutUs() {
       </div>
 
       {/* Stats Section with Counter Animation */}
-      <div ref={statsRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div ref={statsRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 lg:py-24">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {stats.map((stat, index) => (
-            <div 
-              key={index} 
-              className="bg-white rounded-2xl p-8 text-center shadow-xl border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 transform"
+            <div
+              key={index}
+              className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 text-center shadow-lg sm:shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300 transform"
             >
-              <div className="text-orange-500 flex justify-center mb-4">
+              <div className="text-orange-500 flex justify-center mb-3 sm:mb-4">
                 {stat.icon}
               </div>
-              <div className="text-4xl font-bold text-gray-900 mb-2 font-mono">
+              <div className={`
+          font-bold text-gray-900 mb-2 font-mono 
+          ${animatedStats[stat.key] > 9999 ? 'text-lg sm:text-xl md:text-2xl' :
+                  animatedStats[stat.key] > 999 ? 'text-xl sm:text-2xl md:text-3xl' :
+                    'text-2xl sm:text-3xl md:text-4xl'}
+        `}>
                 {animatedStats[stat.key].toLocaleString()}+
               </div>
-              <div className="text-gray-600 font-medium">{stat.label}</div>
+              <div className="text-xs sm:text-sm md:text-base text-gray-600 font-medium truncate px-1">
+                {stat.label}
+              </div>
             </div>
           ))}
         </div>
@@ -213,7 +220,7 @@ export default function AboutUs() {
               </p>
             </div>
           </div>
-          
+
           <div className="relative animate-fade-in-right">
             <div className="bg-gradient-to-br from-orange-100 to-yellow-100 rounded-3xl p-8 shadow-2xl transform rotate-1 hover:rotate-0 transition-transform duration-500">
               <div className="flex items-center gap-4 mb-8">
@@ -225,7 +232,7 @@ export default function AboutUs() {
                   <p className="text-gray-700">Our very first recipe was "Perfect Scrambled Eggs" 🍳</p>
                 </div>
               </div>
-              
+
               <div className="space-y-6">
                 <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 transform hover:scale-[1.02] transition-transform duration-300">
                   <p className="text-gray-800 text-lg italic">
@@ -241,14 +248,14 @@ export default function AboutUs() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-4 text-sm text-gray-600">
                   <Timer className="h-5 w-5 text-orange-500" />
                   <span>Average time saved per recipe: 15 minutes</span>
                 </div>
               </div>
             </div>
-            
+
             {/* Decorative Elements */}
             <div className="absolute -top-4 -right-4 h-20 w-20 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full blur-xl opacity-30"></div>
             <div className="absolute -bottom-4 -left-4 h-16 w-16 bg-gradient-to-br from-pink-400 to-red-400 rounded-full blur-xl opacity-30"></div>
@@ -267,10 +274,10 @@ export default function AboutUs() {
               The principles that guide every recipe, every feature, and every decision at CookBook
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
-              <div 
+              <div
                 key={index}
                 className={`${value.color} border rounded-3xl p-8 hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 transform animate-fade-in-up`}
                 style={{ animationDelay: `${index * 200}ms` }}
@@ -301,13 +308,13 @@ export default function AboutUs() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {teamMembers.map((member, index) => (
-            <div 
+            <div
               key={index}
               className="group relative bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4"
             >
               {/* Background Glow */}
               <div className={`absolute inset-0 bg-gradient-to-br ${member.color} rounded-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500`}></div>
-              
+
               <div className="relative z-10">
                 <div className="text-6xl mb-6 transform group-hover:scale-110 transition-transform duration-500">
                   {member.image}
@@ -315,13 +322,13 @@ export default function AboutUs() {
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">{member.name}</h3>
                 <p className="text-orange-600 font-semibold mb-4">{member.role}</p>
                 <p className="text-gray-700 mb-6">{member.bio}</p>
-                
+
                 <div className="flex items-center gap-2 text-sm text-gray-500 group-hover:text-orange-600 transition-colors">
                   <Community className="h-4 w-4" />
                   <span>Active contributor</span>
                 </div>
               </div>
-              
+
               {/* Hover Effect Border */}
               <div className="absolute inset-0 border-2 border-transparent group-hover:border-orange-400 rounded-3xl transition-all duration-500"></div>
             </div>
@@ -346,7 +353,7 @@ export default function AboutUs() {
             ></div>
           ))}
         </div>
-        
+
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 text-center relative z-10">
           <Award className="h-16 w-16 text-white mx-auto mb-8 animate-bounce-slow" />
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
@@ -372,7 +379,7 @@ export default function AboutUs() {
               Explore Recipes
             </a>
           </div>
-          
+
           <div className="mt-12 grid grid-cols-2 md:grid-cols-3 gap-6 text-white/80">
             <div className="flex items-center gap-3">
               <CheckCircle className="h-5 w-5 text-green-300" />
@@ -394,7 +401,7 @@ export default function AboutUs() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
         <div className="animate-pulse-slow">
           <p className="text-2xl text-gray-700 mb-4">
-            From our kitchen to yours — 
+            From our kitchen to yours —
             <span className="text-orange-600 font-bold"> Happy Cooking!</span> 🍳
           </p>
         </div>
