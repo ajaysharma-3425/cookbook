@@ -17,3 +17,8 @@ export const getMyProfile = () => {
   });
 };
 
+export const forgotPassword = (email) =>
+  axiosInstance.post("/auth/forgot-password", { email });
+
+export const resetPassword = (token, password) =>
+  axiosInstance.post(`/auth/reset-password/${token}`, { password });

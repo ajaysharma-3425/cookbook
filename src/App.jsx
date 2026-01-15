@@ -27,6 +27,8 @@ import Home from "./pages/Home";
 import ContactUs from "./pages/ContactUs";
 import AdminUsers from "./pages/admin/AdminUsers";
 import EditUserAdmin from "./pages/admin/EditUserAdmin";
+import ForgotPassword from "./pages/user/ForgotPassword";
+import ResetPassword from "./pages/user/ResetPassword";
 
 
 <Toaster position='top-right' />
@@ -82,11 +84,13 @@ function App() {
         <Route path="/recipe/:id" element={<RecipeDetail />} />
 
         <Route path="/profile" element={<Profile />} />
-        
+
         <Route path="/about" element={<AboutUs />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/admin/users/:id/profile" element={<Profile />} />
 
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
 
         {/* ADMIN PROTECTED */}
@@ -107,8 +111,8 @@ function App() {
             </AdminRoute>
           }
         />
-      
-      <Route
+
+        <Route
           path="/admin/recipes"
           element={
             <AdminRoute>
